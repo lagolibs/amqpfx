@@ -6,24 +6,24 @@ import (
 	"time"
 )
 
-type clientConfig struct {
+type ClientConfig struct {
 	connectionOption *amqp.ConnOptions
 
 	uri            string
 	connectTimeout time.Duration
 }
 
-func newClientConfig() clientConfig {
-	return clientConfig{
+func NewClientConfig() ClientConfig {
+	return ClientConfig{
 		connectTimeout: 10 * time.Second,
 	}
 }
 
 type Client struct {
-	config *clientConfig
+	config *ClientConfig
 }
 
-func newClient(config *clientConfig) (*Client, error) {
+func NewClient(config *ClientConfig) (*Client, error) {
 	sm := Client{
 		config: config,
 	}

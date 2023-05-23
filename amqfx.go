@@ -10,7 +10,7 @@ import (
 // Does not register group namespace.
 // The name of the mongo client is the same as the name space.
 func NewSimpleModule(namespace string, uri string) fx.Option {
-	otp := newClientConfig()
+	otp := NewClientConfig()
 	otp.uri = uri
 	return fx.Module(namespace,
 		fx.Provide(
@@ -57,9 +57,9 @@ func newModule(namespace string, conf moduleConfig) fx.Option {
 	return fx.Module(namespace, provides...)
 }
 
-func clientFactory(config *clientConfig) func(lc fx.Lifecycle) (*Client, error) {
+func clientFactory(config *ClientConfig) func(lc fx.Lifecycle) (*Client, error) {
 	return func(lc fx.Lifecycle) (*Client, error) {
-		sm, err := newClient(config)
+		sm, err := NewClient(config)
 		if err != nil {
 			return nil, err
 		}
@@ -80,7 +80,7 @@ type ModuleOption func(conf *moduleConfig)
 func WithURIs(uris map[string]string) ModuleOption {
 	return func(conf *moduleConfig) {
 		for key, uri := range uris {
-			c := newClientConfig()
+			c := NewClientConfig()
 			c.uri = uri
 			conf.configs[key] = &c
 		}
@@ -88,5 +88,5 @@ func WithURIs(uris map[string]string) ModuleOption {
 }
 
 type moduleConfig struct {
-	configs map[string]*clientConfig
+	configs map[string]*ClientConfig
 }
