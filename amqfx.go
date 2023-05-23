@@ -10,12 +10,12 @@ import (
 // Does not register group namespace.
 // The name of the mongo client is the same as the name space.
 func NewSimpleModule(namespace string, uri string) fx.Option {
-	otp := newSessionManagerConfig()
-	otp.URI = uri
+	otp := newClientConfig()
+	otp.uri = uri
 	return fx.Module(namespace,
 		fx.Provide(
 			fx.Annotate(
-				sessionManagerFactory(&otp),
+				clientFactory(&otp),
 				fx.ResultTags(
 					fmt.Sprintf(`name:"%s"`, namespace),
 				),
@@ -45,7 +45,7 @@ func newModule(namespace string, conf moduleConfig) fx.Option {
 		provides = append(provides,
 			fx.Provide(
 				fx.Annotate(
-					sessionManagerFactory(option),
+					clientFactory(option),
 					fx.ResultTags(
 						fmt.Sprintf(`name:"%s_%s"`, namespace, name),
 						fmt.Sprintf(`group:"%s"`, namespace),
@@ -57,9 +57,9 @@ func newModule(namespace string, conf moduleConfig) fx.Option {
 	return fx.Module(namespace, provides...)
 }
 
-func sessionManagerFactory(config *sessionManagerConfig) func(lc fx.Lifecycle) (SessionManager, error) {
-	return func(lc fx.Lifecycle) (SessionManager, error) {
-		sm, err := newSimpleSessionManager(config)
+func clientFactory(config *clientConfig) func(lc fx.Lifecycle) (*Client, error) {
+	return func(lc fx.Lifecycle) (*Client, error) {
+		sm, err := newClient(config)
 		if err != nil {
 			return nil, err
 		}
@@ -80,13 +80,13 @@ type ModuleOption func(conf *moduleConfig)
 func WithURIs(uris map[string]string) ModuleOption {
 	return func(conf *moduleConfig) {
 		for key, uri := range uris {
-			c := newSessionManagerConfig()
-			c.URI = uri
+			c := newClientConfig()
+			c.uri = uri
 			conf.configs[key] = &c
 		}
 	}
 }
 
 type moduleConfig struct {
-	configs map[string]*sessionManagerConfig
+	configs map[string]*clientConfig
 }
